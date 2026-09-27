@@ -1,0 +1,26 @@
+# Core dependencies, pinned to the versions this solution was developed and
+# verified against (torch/torchvision are deliberately NOT here - see
+# requirements-torch.txt for why they are split out).
+#
+# This file installs OFFLINE on any environment that already provides a
+# CUDA-enabled torch: nothing here needs the network once the wheels are
+# cached, and no 2.5 GB torch download can be triggered by a patch-version
+# mismatch. For a clean build from scratch use the Dockerfile, which installs
+# requirements-torch.txt first.
+#
+# Verified end-to-end: torch 2.14.0+cu126 / torchvision 0.29.0+cu126 /
+# Python 3.12 on an RTX 3070 Ti and an NVIDIA T4, full test suite green and the
+# organizer's `evaluate.py --validate-only` passing.
+#
+# NOTE: this is opencv-python, not opencv-python-headless, on purpose.
+# Ultralytics depends on `opencv-python`, and the two distributions install
+# into the same `cv2` package directory. Pinning headless while Ultralytics
+# pulls in opencv-python results in BOTH being installed, with the unverified
+# copy silently overwriting the pinned one (observed: cv2.__version__ == 5.0.0
+# while headless 4.13.0.92 was the pin). Pinning the single distribution that
+# Ultralytics actually requires removes that class of failure entirely.
+# If the grading image is a slim container, OpenCV needs the system libs:
+# apt-get install -y libgl1 libglib2.0-0   (the Dockerfile does this)
+numpy==2.5.3
+opencv-python==5.0.0.93
+ultralytics==8.4.160
